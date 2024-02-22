@@ -1,6 +1,6 @@
 # PS5-Dongle
  
-This is a project designed for the <a href=https://www.lilygo.cc/products/t-dongle-s3?variant=42455191519413>LilyGo T-Dongle-S3</a> to provide a wifi http(s) server, dns server.
+This is a project designed for the <a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191519413">LilyGo T-Dongle-S3</a> to provide a wifi http(s) server, dns server.
 
 <br>
 
@@ -14,14 +14,14 @@ using this fork of the exploit <a href=https://github.com/idlesauce/PS5-Exploit-
 
 you must use the LilyGo T-Dongle-S3 with this project and have a fat32 formatted sd card inserted into the dongle.
 
-<a href=https://www.lilygo.cc/products/t-dongle-s3?variant=42455191486645>LilyGo T-Dongle-S3 With LCD</a><br>
-<a href=https://www.lilygo.cc/products/t-dongle-s3?variant=42455191519413>LilyGo T-Dongle-S3 Without LCD</a><br>
+<a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191486645">LilyGo T-Dongle-S3 With LCD</a><br>
+<a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191519413">LilyGo T-Dongle-S3 Without LCD</a><br>
 <br>
 <img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle1.jpg><br>
 
 ## Libraries
 
-the project is built using <b><a href=https://github.com/stooged/esp32_https_server>ESP32 HTTPS Server</a>, <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a></b> and <b><a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add this library to arduino.
+the project is built using <b><a href=https://github.com/stooged/esp32_https_server>ESP32 HTTPS Server</a>, <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a> and <a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add this library to arduino.
 
 <a href=https://github.com/stooged/esp32_https_server>ESP32 HTTPS Server</a><br>
 <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a><br>
