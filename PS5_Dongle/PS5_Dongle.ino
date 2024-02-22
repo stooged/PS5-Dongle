@@ -189,7 +189,6 @@ void handleConfigHtml(AsyncWebServerRequest *request)
 {
   String tmpUa = "";
   String tmpCw = "";
-  String tmpSlp = "";
   if (startAP)
   {
     tmpUa = "checked";
