@@ -35,7 +35,7 @@ the sd card slot is in the bottom of the usb port as pictured below, you will ne
 
 ## Libraries
 
-the project is built using <b><a href=https://github.com/stooged/esp32_https_server>ESP32 HTTPS Server</a>, <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a> and <a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add this library to arduino.
+the project is built using <b><a href=https://github.com/stooged/esp32_https_server>ESP32 HTTPS Server</a>, <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a> and <a href=https://github.com/me-no-dev/AsyncTCP>AsyncTCP</a></b> so you need to add these libraries to arduino.
 
 <a href=https://github.com/stooged/esp32_https_server>ESP32 HTTPS Server</a><br>
 <a href=https://github.com/me-no-dev/ESPAsyncWebServer>ESPAsyncWebServer</a><br>
