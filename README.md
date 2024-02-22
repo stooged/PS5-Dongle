@@ -57,9 +57,9 @@ if you have problems with the board being identified/found in windows then you m
 <br>
 
 
-## Uploading to board
+## Uploading the firmware to the dongle
 
-installation is simple you just use the arduino ide to flash the sketch/firmware to the esp32 board.<br>
+installation is simple you just use the arduino ide to flash the sketch/firmware to the dongle.<br>
 
 use the following board settings<br>
 
