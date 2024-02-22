@@ -17,7 +17,21 @@ you must use the <b>LilyGo T-Dongle-S3</b> with this project and have a fat32 fo
 <a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191486645">LilyGo T-Dongle-S3 With LCD</a><br>
 <a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191519413">LilyGo T-Dongle-S3 Without LCD</a><br>
 <br>
+
+
+<img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle.jpg><br>
 <img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle1.jpg><br>
+
+<br>
+
+this will give you a compact esp dongle that will allow you to update the files by simply plugging it into your computer and using it like a usb flash drive.
+the storage size is limited to the size of the sd card you use.<br>
+
+the sd card slot is in the bottom of the usb port as pictured below, you will need to remove the dummy card and insert a fat32 formatted sd card.<br>
+
+<img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle2.jpg><br>
+
+
 
 ## Libraries
 
