@@ -12,7 +12,7 @@ using this fork of the exploit <a href=https://github.com/idlesauce/PS5-Exploit-
 <br>
 
 
-you must use the LilyGo T-Dongle-S3 with this project and have a fat32 formatted sd card inserted into the dongle.
+you must use the <b>LilyGo T-Dongle-S3</b> with this project and have a fat32 formatted sd card inserted into the dongle.<br>
 
 <a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191486645">LilyGo T-Dongle-S3 With LCD</a><br>
 <a href="https://www.lilygo.cc/products/t-dongle-s3?variant=42455191519413">LilyGo T-Dongle-S3 Without LCD</a><br>
@@ -58,7 +58,7 @@ use the following board settings<br>
 
 to update the files on the dongle you just plug the dongle into your computer and treat it as a usb flash drive.
 
-the exploit files are in the sdcard folder of the repo, copy them into the root of the dongles drive.
+the exploit files are in the <a href=https://github.com/stooged/PS5-Dongle/tree/main/PS5_Dongle/sdcard>sdcard</a> folder of the repo, copy them into the root of the dongles drive.
 
 
 <br>
