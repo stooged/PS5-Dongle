@@ -19,7 +19,7 @@ you must use the <b>LilyGo T-Dongle-S3</b> with this project and have a fat32 fo
 <br>
 
 
-<img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle.jpg><img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle0.jpg><br>
+<img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle0.jpg> <img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle.jpg><br>
 <img src=https://github.com/stooged/PS5-Dongle/blob/main/images/dongle1.jpg><br>
 
 <br>
