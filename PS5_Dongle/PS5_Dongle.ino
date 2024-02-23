@@ -37,12 +37,14 @@ String WIFI_PASS = "password";
 String WIFI_HOSTNAME = "ps5.local";
 
 // Displayed firmware version
-String firmwareVer = "1.00";
+#define firmwareVer "1.00"
 
 //-----------------------------------------------------//
 
 USBMSC MSC;
 #define MOUNT_POINT "/sdcard"
+#define PDESC "PS5-Dongle"
+#define MDESC "T-D-S3"
 sdmmc_card_t *card;
 #include "Pages.h"
 DNSServer dnsServer;
@@ -144,7 +146,7 @@ void handleInfo(AsyncWebServerRequest *request)
   mcuType.toUpperCase();
   String output = "<!DOCTYPE html><html><head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><title>System Information</title><link rel=\"stylesheet\" href=\"style.css\"></head>";
   output += "<hr>###### Software ######<br><br>";
-  output += "Firmware version " + firmwareVer + "<br>";
+  output += "Firmware version " + String(firmwareVer) + "<br>";
   output += "SDK version: " + String(ESP.getSdkVersion()) + "<br><hr>";
   output += "###### Board ######<br><br>";
   output += "MCU: " + mcuType + "<br>";
@@ -418,13 +420,15 @@ void setup()
   // Serial.begin(115200);
   // Serial.println("Version: " + firmwareVer);
   setup_SD();
-  MSC.vendorID("PS5-Hen");
-  MSC.productID("PS5-Dongle");
-  MSC.productRevision("1.0");
+  MSC.vendorID(MDESC);
+  MSC.productID(PDESC);
+  MSC.productRevision(firmwareVer);
   MSC.onRead(onRead);
   MSC.onWrite(onWrite);
   MSC.mediaPresent(true);
   MSC.begin(card->csd.capacity, card->csd.sector_size);
+  USB.productName(PDESC);
+  USB.manufacturerName(MDESC);
   USB.begin();
 
   SD_MMC.setPins(12, 16, 14, 17, 21, 18);
