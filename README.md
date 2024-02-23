@@ -70,6 +70,10 @@ to update the files on the dongle you just plug the dongle into your computer an
 
 the exploit files are in the <a href=https://github.com/stooged/PS5-Dongle/tree/main/sdcard>sdcard</a> folder of the repo, copy them into the root of the dongles drive.
 
+<br>
+
+<img src=https://github.com/stooged/PS5-Dongle/blob/main/images/drive.jpg>
+
 
 <br>
 
