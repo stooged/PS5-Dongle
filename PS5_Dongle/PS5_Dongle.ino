@@ -16,7 +16,7 @@
 #include "driver/sdspi_host.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
-
+#include "etahen.h"
 
 //-------------------DEFAULT SETTINGS------------------//
 
@@ -832,9 +832,17 @@ void setup()
       request->send(response);
       return;
     }
+    if (autoHen)
+    {
+      if (path.endsWith("etahen.bin")) {
+        AsyncWebServerResponse *response = request->beginResponse_P(200, "application/octet-stream", etahen_gz, sizeof(etahen_gz));
+        response->addHeader("Content-Encoding", "gzip");
+        request->send(response);
+      }
+    }
     //USBSerial.println(request->url());
     request->send(404); 
-    });
+  });
 
   server.begin();
 
