@@ -13,10 +13,20 @@
 #include "USB.h"
 #include "USBMSC.h"
 #include "driver/sdmmc_host.h"
-#include "driver/sdspi_host.h"
 #include "esp_vfs_fat.h"
 #include "sdmmc_cmd.h"
 #include "etahen.h"
+
+
+#define USETFT false  // use dongle lcd screen
+
+#if USETFT
+#include <TFT_eSPI.h>  // https://github.com/stooged/TFT_eSPI
+TFT_eSPI tft = TFT_eSPI();  
+long tftCnt = 0;
+bool tftOn = true;
+#endif
+
 
 //-------------------DEFAULT SETTINGS------------------//
 
@@ -101,48 +111,6 @@ String formatBytes(size_t bytes)
   {
     return String(bytes / 1024.0 / 1024.0 / 1024.0) + " GB";
   }
-}
-
-String urlencode(String str)
-{
-  String encodedString = "";
-  char c;
-  char code0;
-  char code1;
-  char code2;
-  for (int i = 0; i < str.length(); i++)
-  {
-    c = str.charAt(i);
-    if (c == ' ')
-    {
-      encodedString += '+';
-    }
-    else if (isalnum(c))
-    {
-      encodedString += c;
-    }
-    else
-    {
-      code1 = (c & 0xf) + '0';
-      if ((c & 0xf) > 9)
-      {
-        code1 = (c & 0xf) - 10 + 'A';
-      }
-      c = (c >> 4) & 0xf;
-      code0 = c + '0';
-      if (c > 9)
-      {
-        code0 = c - 10 + 'A';
-      }
-      code2 = '\0';
-      encodedString += '%';
-      encodedString += code0;
-      encodedString += code1;
-    }
-    yield();
-  }
-  encodedString.replace("%2E", ".");
-  return encodedString;
 }
 
 void findHen(String directory)
@@ -527,10 +495,90 @@ static int32_t onRead(uint32_t lba, uint32_t offset, void *buffer, uint32_t bufs
   return bufsize;
 }
 
+void startAccessPoint()
+{
+  if (startAP)
+  {
+    WiFi.softAPConfig(Server_IP, Server_IP, Subnet_Mask);
+    WiFi.softAP(AP_SSID.c_str(), AP_PASS.c_str());
+    //USBSerial.println("WIFI AP started");
+    dnsServer.setTTL(30);
+    dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+    dnsServer.start(53, "*", Server_IP);
+#if USETFT
+    tft.print("AP: ");
+    tft.println(AP_SSID);
+    if (!connectWifi)
+    {
+      tft.print("Host: ");
+      tft.println(WIFI_HOSTNAME);
+    }
+    tft.print("IP: ");
+    tft.println(Server_IP.toString());
+#endif
+  }
+}
+
+void connectToWIFI()
+{
+  if (connectWifi && WIFI_SSID.length() > 0 && WIFI_PASS.length() > 0)
+  {
+    WiFi.setAutoConnect(true);
+    WiFi.setAutoReconnect(true);
+    WiFi.hostname(WIFI_HOSTNAME);
+    WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
+    //USBSerial.println("WIFI connecting");
+    if (WiFi.waitForConnectResult() != WL_CONNECTED)
+    {
+      //USBSerial.println("Wifi failed to connect");
+#if USETFT
+      tft.setTextColor(TFT_RED, TFT_BLACK);          
+      tft.println("Failed to connect to:");
+      tft.setTextColor(TFT_WHITE, TFT_BLACK);  
+      tft.println(WIFI_SSID);
+#endif      
+    }
+    else
+    {
+      IPAddress LAN_IP = WiFi.localIP();
+      if (LAN_IP)
+      {
+        String mdnsHost = WIFI_HOSTNAME;
+        mdnsHost.replace(".local", "");
+        MDNS.begin(mdnsHost.c_str());
+#if USETFT        
+        tft.print("Host: ");
+        tft.println(WIFI_HOSTNAME);
+        tft.print("IP: ");
+        tft.println(LAN_IP.toString()); 
+#endif
+        if (!startAP)
+        {
+          dnsServer.setTTL(30);
+          dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
+          dnsServer.start(53, "*", LAN_IP);
+        }
+      }
+    }
+  }
+}
+
 void setup()
 {
   //USBSerial.begin(115200);
   //USBSerial.println("Version: " + String(firmwareVer));
+  
+  pinMode(38, OUTPUT);
+  digitalWrite(38, HIGH); 
+
+#if USETFT   
+  tft.init();
+  tft.setRotation(1);
+  tft.fillScreen(TFT_BLACK);
+  tft.pushImage(0, 0, 160, 320, logo);
+  digitalWrite(38, LOW);
+#endif 
+  
   setup_SD();
   MSC.vendorID(MDESC);
   MSC.productID(PDESC);
@@ -655,57 +703,17 @@ void setup()
     //USBSerial.println("Filesystem failed to mount");
   }
 
-  if (startAP)
-  {
-    //USBSerial.println("SSID: " + AP_SSID);
-    //USBSerial.println("Password: " + AP_PASS);
-    //USBSerial.println("");
-    //USBSerial.println("WEB Server IP: " + Server_IP.toString());
-    //USBSerial.println("Subnet: " + Subnet_Mask.toString());
-    //USBSerial.println("");
-    WiFi.softAPConfig(Server_IP, Server_IP, Subnet_Mask);
-    WiFi.softAP(AP_SSID.c_str(), AP_PASS.c_str());
-    //USBSerial.println("WIFI AP started");
-    dnsServer.setTTL(30);
-    dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
-    dnsServer.start(53, "*", Server_IP);
-    //USBSerial.println("DNS server started");
-    //USBSerial.println("DNS Server IP: " + Server_IP.toString());
-  }
 
-  if (connectWifi && WIFI_SSID.length() > 0 && WIFI_PASS.length() > 0)
-  {
-    WiFi.setAutoConnect(true);
-    WiFi.setAutoReconnect(true);
-    WiFi.hostname(WIFI_HOSTNAME);
-    WiFi.begin(WIFI_SSID.c_str(), WIFI_PASS.c_str());
-    //USBSerial.println("WIFI connecting");
-    if (WiFi.waitForConnectResult() != WL_CONNECTED)
-    {
-      //USBSerial.println("Wifi failed to connect");
-    }
-    else
-    {
-      IPAddress LAN_IP = WiFi.localIP();
-      if (LAN_IP)
-      {
-        //USBSerial.println("Wifi Connected");
-        //USBSerial.println("WEB Server LAN IP: " + LAN_IP.toString());
-        //USBSerial.println("WEB Server Hostname: " + WIFI_HOSTNAME);
-        String mdnsHost = WIFI_HOSTNAME;
-        mdnsHost.replace(".local", "");
-        MDNS.begin(mdnsHost.c_str());
-        if (!startAP)
-        {
-          dnsServer.setTTL(30);
-          dnsServer.setErrorReplyCode(DNSReplyCode::ServerFailure);
-          dnsServer.start(53, "*", LAN_IP);
-          //USBSerial.println("DNS server started");
-          //USBSerial.println("DNS Server IP: " + LAN_IP.toString());
-        }
-      }
-    }
-  }
+#if USETFT  
+  delay(3000);
+  tft.fillScreen(TFT_BLACK);
+  tft.setTextFont(1); //16 col 5 row
+  tft.setTextColor(TFT_SKYBLUE, TFT_BLACK);   
+  tft.setCursor(0, 0, 2);
+#endif
+
+  startAccessPoint();
+  connectToWIFI();
 
   if (SD_MMC.exists("/pk.pem") && SD_MMC.exists("/cert.der"))
   {
@@ -728,7 +736,7 @@ void setup()
   else
   {
     cert = new SSLCert();
-    String keyInf = "CN=" + WIFI_HOSTNAME + ",O=Esp32_Server,C=US";
+    String keyInf = "CN=" + WIFI_HOSTNAME + ",O=" + PDESC + ",C=US";
     int createCertResult = createSelfSignedCert(*cert, KEYSIZE_1024, (std::string)keyInf.c_str(), "20190101000000", "20300101000000");
     if (createCertResult != 0)
     {
@@ -747,52 +755,38 @@ void setup()
   }
 
 
-  server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request)
-            { request->send(200, "text/plain", "Microsoft Connect Test"); });
+  server.on("/connecttest.txt", HTTP_GET, [](AsyncWebServerRequest *request){ request->send(200, "text/plain", "Microsoft Connect Test"); });
+  server.on("/config.ini", HTTP_ANY, [](AsyncWebServerRequest *request) { request->send(404); });
+  server.on("/cert.der", HTTP_ANY, [](AsyncWebServerRequest *request){ request->send(404); });
+  server.on("/pk.pem", HTTP_ANY, [](AsyncWebServerRequest *request){ request->send(404); });
+  server.on("/update.html", HTTP_POST, [](AsyncWebServerRequest *request) {}, handleFwUpdate);
+  server.on("/info.html", HTTP_GET, [](AsyncWebServerRequest *request){ handleInfo(request); });
 
-  server.on("/config.ini", HTTP_ANY, [](AsyncWebServerRequest *request)
-            { request->send(404); });
-
-  server.on("/cert.der", HTTP_ANY, [](AsyncWebServerRequest *request)
-            { request->send(404); });
-
-  server.on("/pk.pem", HTTP_ANY, [](AsyncWebServerRequest *request)
-            { request->send(404); });
-
-  server.on(
-      "/update.html", HTTP_POST, [](AsyncWebServerRequest *request) {},
-      handleFwUpdate);
-
-  server.on("/info.html", HTTP_GET, [](AsyncWebServerRequest *request)
-            { handleInfo(request); });
-
-  server.on("/admin.html", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
+  server.on("/admin.html", HTTP_GET, [](AsyncWebServerRequest *request){
     AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", admin_gz, sizeof(admin_gz));
     response->addHeader("Content-Encoding", "gzip");
     request->send(response); });
 
-  server.on("/reboot.html", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
+  server.on("/reboot.html", HTTP_GET, [](AsyncWebServerRequest *request){
     AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", reboot_gz, sizeof(reboot_gz));
     response->addHeader("Content-Encoding", "gzip");
     request->send(response); });
 
-  server.on("/reboot.html", HTTP_POST, [](AsyncWebServerRequest *request)
-            { handleReboot(request); });
+  server.on("/reboot.html", HTTP_POST, [](AsyncWebServerRequest *request){ handleReboot(request); });
 
-  server.on("/update.html", HTTP_GET, [](AsyncWebServerRequest *request)
-            {
+  server.on("/update.html", HTTP_GET, [](AsyncWebServerRequest *request){
     AsyncWebServerResponse *response = request->beginResponse_P(200, "text/html", update_gz, sizeof(update_gz));
     response->addHeader("Content-Encoding", "gzip");
     request->send(response); });
 
-#if USECONFIG
-  server.on("/config.html", HTTP_GET, [](AsyncWebServerRequest *request)
-            { handleConfigHtml(request); });
+  server.on("/favicon.ico", HTTP_GET, [](AsyncWebServerRequest *request){
+    AsyncWebServerResponse *response = request->beginResponse_P(200, "image/x-icon", favicon, sizeof(favicon));
+    response->addHeader("Content-Encoding", "gzip");
+    request->send(response); });
 
-  server.on("/config.html", HTTP_POST, [](AsyncWebServerRequest *request)
-            { handleConfig(request); });
+#if USECONFIG
+  server.on("/config.html", HTTP_GET, [](AsyncWebServerRequest *request){ handleConfigHtml(request); });
+  server.on("/config.html", HTTP_POST, [](AsyncWebServerRequest *request){ handleConfig(request); });
 #endif
 
   if (autoHen)
@@ -817,6 +811,10 @@ void setup()
     String path = request->url();
     if (path.endsWith("index.htm") || path.endsWith("/")) {
       request->redirect("http://" + WIFI_HOSTNAME + "/index.html");
+      return;
+    }
+    if (path.endsWith("index.html")) {
+      sendwebmsg(request, "You need to add a index.html file to the dongles storage.");
       return;
     }
     if (path.endsWith("style.css")) {
@@ -862,6 +860,23 @@ void loop()
     isRebooting = false;
     ESP.restart();
   }
+
+#if USETFT    
+  if (millis() >= (tftCnt + 60000) && tftOn){ 
+    tftCnt = 0;
+    tftOn = false;
+    digitalWrite(38, HIGH);
+    return;
+  }
+  if (digitalRead(0) == LOW){
+    if (tftCnt == 0){
+       tftCnt = millis();
+       digitalWrite(38, LOW);
+       tftOn = true;
+    }
+  }
+#endif
+  
 }
 
 #else
